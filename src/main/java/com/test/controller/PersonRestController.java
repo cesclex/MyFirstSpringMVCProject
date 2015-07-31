@@ -2,16 +2,15 @@ package com.test.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import com.test.model.Person;
 import com.test.service.PersonService;
 
@@ -31,19 +30,13 @@ public class PersonRestController {
 	}
 
 	@RequestMapping(value = "/api/person/{id}", method = RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> personForm(@PathVariable int id) {
+	@ResponseBody
+	public ResponseEntity<Person> personForm(@PathVariable int id) {
 		Person person = personService.getPersonById(id);
-		System.out.println(person);
-		return new ResponseEntity<>(person.toString(), null, HttpStatus.FOUND);
-	}
-
-	@RequestMapping(value = "/api/person", method = RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> personSave(@RequestBody Person person) {
-		personService.addPerson(person);
-
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setLocation(
-				ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(person.getId()).toUri());
-		return new ResponseEntity<>(null, httpHeaders, HttpStatus.CREATED);
+		if(person==null){
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} else {
+			return new ResponseEntity<>(person, HttpStatus.OK);
+		}
 	}
 }
